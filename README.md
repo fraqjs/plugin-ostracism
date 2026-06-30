@@ -1,7 +1,11 @@
-# fraq-plugin-template
+# fraq-plugin-ostracism
 
-用于开发 Fraq 插件的模板仓库。包含了：
+陶片放逐（禁言）你的群友。
 
-- TypeScript 配置（`tsconfig.json`）
-- Biome 配置（`biome.json`），用于代码格式化和 linting
-- 简单的测试脚本，可以通过 `npx tsx test/smoke.ts` 运行
+## Usage
+
+```
+陶片禁言 @群友
+```
+
+随后机器人会在群里发起一个禁言提案，5 分钟内如果有 3 票或以上的赞成票，该用户将被禁言。投票方式为在原消息下回应表情【续标识】。
