@@ -69,7 +69,7 @@ export const OstracismPlugin = definePlugin({
           proposalMap.delete(key);
           if (voteCount >= 3) {
             // Mute the user for (count - 2) * 10 minutes
-            const muteDuration = (voteCount - 2) * 10 * 60;
+            const muteDuration = (voteCount - 2 - 1) /* the bot itself */ * 10 * 60;
             ctx.client.set_group_member_mute({
               group_id: groupId,
               user_id: userId,
