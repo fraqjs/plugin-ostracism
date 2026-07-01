@@ -10,9 +10,18 @@ interface Proposal {
   votes: Set<number>;
 }
 
+export interface OstracismPluginOptions {
+  voteThreshold?: number;
+  muteTimeoutMinute?: number;
+  muteDurationSecond?: (voteCount: number) => number;
+}
+
 export const OstracismPlugin = definePlugin({
   name: 'ostracism',
-  apply(ctx) {
+  apply(ctx, options?: OstracismPluginOptions) {
+    const voteThreshold = options?.voteThreshold ?? 3;
+    const muteTimeoutMinute = options?.muteTimeoutMinute ?? 5;
+    const muteDurationSecond = options?.muteDurationSecond ?? ((voteCount) => (voteCount - 2) * 10 * 60);
     const proposalMap = new Map<string, Proposal>();
 
     function addVote(groupId: number, seq: number, voterId: number) {
@@ -53,14 +62,16 @@ export const OstracismPlugin = definePlugin({
         });
 
         await session.reply(
-          msg`已发起对 ${seg.mention(member.data.user_id)} 的禁言提案，请在上述消息下贴表情【${seg.face(424)}】以投票。如果 5 分钟内投票数达到 3 票或以上，该用户将被禁言。`,
+          msg`
+已发起对 ${seg.mention(member.data.user_id)} 的禁言提案，请在上述消息下贴表情【${seg.face(424)}】以投票。
+如果 ${muteTimeoutMinute} 分钟内投票数达到 ${voteThreshold} 票或以上，该用户将被禁言。
+          `,
           {
             withQuote: true,
           },
         );
 
-        // wait for 5 minutes for votes
-        ctx.timeout(5 * 60 * 1000, () => {
+        ctx.timeout(muteTimeoutMinute * 60 * 1000, () => {
           const proposal = proposalMap.get(key);
           if (!proposal) {
             return;
@@ -69,9 +80,9 @@ export const OstracismPlugin = definePlugin({
           const groupId = session.raw.peer_id;
           const userId = proposal.userId;
           proposalMap.delete(key);
-          if (voteCount >= 3) {
+          if (voteCount >= voteThreshold) {
             // Mute the user for (count - 2) * 10 minutes
-            const muteDuration = (voteCount - 2) * 10 * 60;
+            const muteDuration = muteDurationSecond(voteCount);
             ctx.client.set_group_member_mute({
               group_id: groupId,
               user_id: userId,
