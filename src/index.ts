@@ -6,6 +6,7 @@ function proposalKey(groupId: number, seq: number): string {
 
 interface Proposal {
   userId: number;
+  initiatorId: number;
   votes: Set<number>;
 }
 
@@ -40,6 +41,7 @@ export const OstracismPlugin = definePlugin({
         const key = proposalKey(session.raw.peer_id, session.raw.message_seq);
         proposalMap.set(key, {
           userId: member.data.user_id,
+          initiatorId: session.raw.sender_id,
           votes: new Set([session.raw.sender_id]),
         });
 
@@ -69,7 +71,7 @@ export const OstracismPlugin = definePlugin({
           proposalMap.delete(key);
           if (voteCount >= 3) {
             // Mute the user for (count - 2) * 10 minutes
-            const muteDuration = (voteCount - 2 - 1) /* the bot itself */ * 10 * 60;
+            const muteDuration = (voteCount - 2) * 10 * 60;
             ctx.client.set_group_member_mute({
               group_id: groupId,
               user_id: userId,
@@ -79,13 +81,13 @@ export const OstracismPlugin = definePlugin({
         });
       });
 
-    ctx.on('group_message_reaction', ({ data }) => {
+    ctx.on('group_message_reaction', ({ data, self_id }) => {
       const key = proposalKey(data.group_id, data.message_seq);
       const proposal = proposalMap.get(key);
       if (!proposal) {
         return;
       }
-      if (data.user_id === proposal.userId) {
+      if (data.user_id === proposal.userId || data.user_id === proposal.initiatorId || data.user_id === self_id) {
         return;
       }
       if (data.face_id !== '424') {
