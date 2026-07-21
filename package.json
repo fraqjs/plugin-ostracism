@@ -1,8 +1,8 @@
 {
   "name": "fraq-plugin-ostracism",
   "type": "module",
-  "version": "0.2.0",
-  "description": "Mute someone with Ostracism",
+  "version": "0.2.1",
+  "description": "陶片放逐（禁言）你的群友",
   "files": [
     "dist"
   ],
@@ -21,14 +21,17 @@
   "license": "MIT",
   "packageManager": "pnpm@11.9.0",
   "devDependencies": {
-    "@biomejs/biome": "^2.5.1",
+    "@biomejs/biome": "^2.5.4",
     "@fraqjs/mock": "^0.1.0",
-    "@types/node": "^24.13.2",
-    "tsdown": "^0.22.2",
-    "tsx": "^4.22.4",
+    "@types/node": "^24.13.3",
+    "tsdown": "^0.22.12",
+    "tsx": "^4.23.1",
     "typescript": "^6.0.3"
   },
   "peerDependencies": {
-    "@fraqjs/fraq": "^0.11.0"
+    "@fraqjs/fraq": "^0.14.0"
+  },
+  "fraq": {
+    "category": "entertainment"
   }
 }
